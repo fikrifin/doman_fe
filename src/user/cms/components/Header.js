@@ -1,15 +1,16 @@
 import React from 'react';
-import { useAuth } from '../../../auth/AuthContext'; // Import useAuth untuk mendapatkan data user
+import { useAuth } from '../../../auth/AuthContext'; // Sesuaikan path ini
 
 function Header() {
-    const { user } = useAuth(); // Ambil data user dari context
-    const username = user?.username || "Pengguna"; // Gunakan username dari user atau fallback
+    const { user } = useAuth();
 
     return (
-        <header className="h-16 bg-white border-b flex items-center justify-between px-6">
-            <div className="flex items-center">
-                {/* Tombol menu untuk mobile bisa ditambahkan di sini */}
-                <h1 className="text-lg font-semibold">Selamat Datang, {username}</h1>
+        <header className="h-16 bg-white border-b flex items-center justify-end px-6">
+            <div className="flex items-center space-x-4">
+                 <span className="text-right hidden sm:block">
+                    <div className="font-semibold">{user ? user.username : '...'}</div>
+                    <div className="text-xs text-gray-500">{user ? user.email : '...'}</div>
+                </span>
             </div>
         </header>
     );

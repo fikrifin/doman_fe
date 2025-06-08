@@ -16,13 +16,12 @@ import DashboardHomePage from './user/cms/pages/DashboardHomePage';
 // Komponen placeholder
 const TransaksiWajibPage = () => <div>Halaman Transaksi Wajib</div>;
 const SemuaTransaksiPage = () => <div>Halaman Semua Transaksi</div>;
+const KategoriPage = () => <div>Halaman untuk mengelola Kategori.</div>;
 
 // Komponen untuk melindungi rute dasbor
 function ProtectedRoute({ children }) {
-    // Gunakan hook useAuth yang asli
     const { token } = useAuth();
     if (!token) {
-        // Jika tidak ada token, alihkan ke halaman login
         return <Navigate to="/login" replace />;
     }
     return children;
@@ -32,7 +31,6 @@ function ProtectedRoute({ children }) {
 function PublicRoute({ children }) {
     const { token } = useAuth();
     if (token) {
-        // Jika sudah login, alihkan ke dashboard
         return <Navigate to="/dashboard" replace />;
     }
     return children;
@@ -58,6 +56,7 @@ function AppRoutes() {
         <Route index element={<DashboardHomePage />} />
         <Route path="transaksi-wajib" element={<TransaksiWajibPage />} />
         <Route path="semua-transaksi" element={<SemuaTransaksiPage />} />
+        <Route path="kategori" element={<KategoriPage />} />
       </Route>
 
       {/* Rute fallback */}
@@ -66,7 +65,6 @@ function AppRoutes() {
   );
 }
 
-// Komponen App utama sekarang hanya membungkus provider
 function App() {
     return (
         <AuthProvider>
