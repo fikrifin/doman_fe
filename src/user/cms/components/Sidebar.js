@@ -31,11 +31,11 @@ function Sidebar({ isCollapsed, toggleSidebar }) {
                 </NavLink>
                 <NavLink to="/dashboard/transaksi-wajib" style={({isActive}) => isActive ? activeLinkStyle : {}} className={`flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-indigo-500 hover:text-white ${isCollapsed && 'justify-center'}`}>
                     <WajibIcon className="h-6 w-6 shrink-0" />
-                    <span className={`ml-3 whitespace-nowrap transition-opacity duration-200 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Transaksi Wajib</span>
+                    <span className={`ml-3 whitespace-nowrap transition-opacity duration-200 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Transaksi Penting</span>
                 </NavLink>
                 <NavLink to="/dashboard/semua-transaksi" style={({isActive}) => isActive ? activeLinkStyle : {}} className={`flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-indigo-500 hover:text-white ${isCollapsed && 'justify-center'}`}>
                     <TransaksiIcon className="h-6 w-6 shrink-0" />
-                    <span className={`ml-3 whitespace-nowrap transition-opacity duration-200 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Semua Transaksi</span>
+                    <span className={`ml-3 whitespace-nowrap transition-opacity duration-200 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Transaksi</span>
                 </NavLink>
                 <NavLink to="/dashboard/kategori" style={({isActive}) => isActive ? activeLinkStyle : {}} className={`flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-indigo-500 hover:text-white ${isCollapsed && 'justify-center'}`}>
                     <KategoriIcon className="h-6 w-6 shrink-0" />
