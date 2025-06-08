@@ -1,6 +1,9 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
+// Impor AuthProvider dan hook useAuth
+import { AuthProvider, useAuth } from './auth/AuthContext';
+
 // Impor halaman-halaman utama
 import LandingPage from './pages/LandingPage';
 import LoginPage from './user/page/LoginPage';
@@ -10,36 +13,38 @@ import RegisterPage from './user/page/RegisterPage';
 import DashboardLayout from './user/cms/DashboardLayout';
 import DashboardHomePage from './user/cms/pages/DashboardHomePage';
 
-// Komponen placeholder untuk rute yang belum dibuat
+// Komponen placeholder
 const TransaksiWajibPage = () => <div>Halaman Transaksi Wajib</div>;
 const SemuaTransaksiPage = () => <div>Halaman Semua Transaksi</div>;
 
-// Komponen dummy untuk simulasi status login
-const useAuth = () => {
-    // Ganti ini dengan logika context Anda yang sebenarnya.
-    // Untuk sekarang, kita anggap user sudah login jika ada token di localStorage.
-    const token = localStorage.getItem('authToken');
-    return { isAuthenticated: !!token };
-};
-
 // Komponen untuk melindungi rute dasbor
 function ProtectedRoute({ children }) {
-    const { isAuthenticated } = useAuth();
-    if (!isAuthenticated) {
-        // Jika tidak login, alihkan ke halaman login
+    // Gunakan hook useAuth yang asli
+    const { token } = useAuth();
+    if (!token) {
+        // Jika tidak ada token, alihkan ke halaman login
         return <Navigate to="/login" replace />;
     }
     return children;
 }
 
+// Komponen untuk rute publik (pengguna tidak boleh mengakses jika sudah login)
+function PublicRoute({ children }) {
+    const { token } = useAuth();
+    if (token) {
+        // Jika sudah login, alihkan ke dashboard
+        return <Navigate to="/dashboard" replace />;
+    }
+    return children;
+}
 
-function App() {
+function AppRoutes() {
   return (
     <Routes>
       {/* Rute Publik */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+      <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
       {/* Rute Dasbor yang Terproteksi */}
       <Route 
@@ -50,7 +55,6 @@ function App() {
             </ProtectedRoute>
         }
       >
-        {/* Sub-rute ini akan di-render di dalam <Outlet /> pada DashboardLayout */}
         <Route index element={<DashboardHomePage />} />
         <Route path="transaksi-wajib" element={<TransaksiWajibPage />} />
         <Route path="semua-transaksi" element={<SemuaTransaksiPage />} />
@@ -60,6 +64,15 @@ function App() {
       <Route path="*" element={<div>404 - Halaman Tidak Ditemukan</div>} />
     </Routes>
   );
+}
+
+// Komponen App utama sekarang hanya membungkus provider
+function App() {
+    return (
+        <AuthProvider>
+            <AppRoutes />
+        </AuthProvider>
+    );
 }
 
 export default App;

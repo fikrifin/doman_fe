@@ -1,13 +1,10 @@
 import React from 'react';
 // NavLink digunakan agar bisa memberi style pada link yang sedang aktif
 import { NavLink, Link } from 'react-router-dom';
+import { useAuth } from '../../../auth/AuthContext'; // Pastikan path ini benar sesuai struktur folder Anda
 
 function Sidebar() {
-    // Fungsi untuk logout bisa ditambahkan di sini nanti
-    const handleLogout = () => {
-        // Logika logout akan ditambahkan kemudian
-        alert('Fungsi logout belum diimplementasikan.');
-    };
+    const { logout } = useAuth(); // Gunakan fungsi logout dari AuthContext
 
     // Style untuk link yang aktif
     const activeLinkStyle = {
@@ -47,7 +44,7 @@ function Sidebar() {
                 </NavLink>
             </nav>
             <div className="p-4 border-t">
-                <button onClick={handleLogout} className="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-red-500 hover:text-white transition">
+                <button onClick={logout} className="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-red-500 hover:text-white transition">
                     Logout
                 </button>
             </div>

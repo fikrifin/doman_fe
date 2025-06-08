@@ -1,64 +1,25 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-
-// Definisikan URL API di satu tempat agar mudah diubah
-const API_URL = 'http://127.0.0.1:8000';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext'; // Import AuthContext
 
 function LoginPage() {
-    // State untuk menyimpan input dari form
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    
-    // State untuk menangani pesan error dan status loading
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Hook untuk navigasi programmatic
-    const navigate = useNavigate();
+    const { login } = useAuth(); // Use login function from AuthContext
 
-    // Fungsi yang akan dijalankan saat form di-submit
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Mencegah halaman refresh
+        e.preventDefault();
         setError('');
         setLoading(true);
 
         try {
-            const response = await fetch(`${API_URL}/api/auth/login/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                // Pastikan nama field (username, password) sesuai dengan yang diharapkan Django
-                body: JSON.stringify({
-                    username: username,
-                    password: password,
-                }),
-            });
-
-            const data = await response.json();
-
-            // Jika respons tidak OK (misal: status 400), backend dj-rest-auth
-            // biasanya mengirim pesan error dalam 'non_field_errors' atau field lain.
-            if (!response.ok) {
-                // Mengambil pesan error utama atau pesan default
-                const errorMessage = data.non_field_errors?.[0] || 'Username atau password salah.';
-                throw new Error(errorMessage);
-            }
-
-            // --- PENTING ---
-            // Jika login berhasil, backend akan mengembalikan 'key' atau 'access_token'
-            // Untuk saat ini, kita akan simpan di localStorage dan log di console.
-            // Langkah berikutnya adalah mengelola ini dengan React Context.
-            console.log('Login berhasil! Token diterima:', data.key);
-            localStorage.setItem('authToken', data.key);
-            
-            // Alihkan ke halaman dashboard setelah berhasil login
-            navigate('/dashboard'); 
-
+            await login(username, password); // Use AuthContext's login function
         } catch (err) {
             setError(err.message);
         } finally {
-            // Hentikan status loading, baik berhasil maupun gagal
             setLoading(false);
         }
     };
