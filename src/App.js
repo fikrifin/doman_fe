@@ -11,9 +11,9 @@ import RegisterPage from './user/page/RegisterPage';
 import DashboardLayout from './user/cms/DashboardLayout';
 import DashboardHomePage from './user/cms/pages/DashboardHomePage';
 import KategoriPage from './user/cms/pages/KategoriPage';
+import SemuaTransaksiPage from './user/cms/pages/SemuaTransaksiPage';
 
 const TransaksiWajibPage = () => <div>Halaman Transaksi Wajib</div>;
-const SemuaTransaksiPage = () => <div>Halaman Semua Transaksi</div>;
 
 // Komponen baru untuk layar loading global
 function GlobalLoading() {
