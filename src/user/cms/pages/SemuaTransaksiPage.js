@@ -94,7 +94,7 @@ function SemuaTransaksiPage() {
                 <h1 className="text-3xl font-bold text-gray-800">Daftar Riwayat Transaksi</h1>
                 <div className="flex items-center gap-2 bg-white p-2 rounded-full shadow-sm border">
                     {/* Filter Bulan & Tahun dengan style baru */}
-                    <select value={bulan} onChange={(e) => setBulan(e.target.value)} className="bg-transparent font-semibold text-gray-600 border-none focus:ring-0">
+                    <select value={bulan} onChange={(e) => setBulan(e.target.value)} className="bg-transparent font-semibold text-gray-600 text-center border-none focus:ring-0">
                         {Array.from({length: 12}, (_, i) => <option key={i+1} value={i+1}>{new Date(0, i).toLocaleString('id-ID', {month: 'long'})}</option>)}
                     </select>
                     <select value={tahun} onChange={(e) => setTahun(e.target.value)} className="bg-transparent font-semibold text-gray-600 border-none focus:ring-0">
