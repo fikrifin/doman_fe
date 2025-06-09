@@ -19,7 +19,7 @@ function KategoriPage() {
     const fetchKategori = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/api/transaksi/kategori/`, {
+            const response = await fetch(`${API_URL}/api/doman/kategori/`, {
                 headers: { 'Authorization': `Token ${token}` },
             });
             if (!response.ok) throw new Error('Gagal memuat data.');
@@ -49,7 +49,7 @@ function KategoriPage() {
 
     const handleSaveKategori = async (nama) => {
         const isEditing = !!editingKategori;
-        const url = isEditing ? `${API_URL}/api/transaksi/kategori/${editingKategori.id}/` : `${API_URL}/api/transaksi/kategori/`;
+        const url = isEditing ? `${API_URL}/api/doman/kategori/${editingKategori.id}/` : `${API_URL}/api/doman/kategori/`;
         const method = isEditing ? 'PUT' : 'POST';
 
         try {
@@ -73,7 +73,7 @@ function KategoriPage() {
     const handleDeleteKategori = async (id) => {
         if (window.confirm('Apakah Anda yakin ingin menghapus kategori ini?')) {
             try {
-                const response = await fetch(`${API_URL}/api/transaksi/kategori/${id}/`, {
+                const response = await fetch(`${API_URL}/api/doman/kategori/${id}/`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Token ${token}` },
                 });
