@@ -6,44 +6,46 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
     const [token, setToken] = useState(localStorage.getItem('authToken'));
-    // --- PERUBAHAN 1: State baru untuk menyimpan data user ---
     const [user, setUser] = useState(null);
+    // --- PERUBAHAN 1: State baru untuk loading global ---
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    // Efek ini sekarang akan mengambil data user jika ada token
+    // Efek ini sekarang akan menangani validasi token saat aplikasi dimuat
     useEffect(() => {
-        const fetchUser = async () => {
-            if (token) {
+        const validateTokenAndFetchUser = async () => {
+            const storedToken = localStorage.getItem('authToken');
+            if (storedToken) {
                 try {
                     const response = await fetch(`${API_URL}/api/auth/user/`, {
-                        headers: {
-                            'Authorization': `Token ${token}`,
-                        },
+                        headers: { 'Authorization': `Token ${storedToken}` },
                     });
                     if (!response.ok) {
-                        // Jika token tidak valid (misal: sudah expired), hapus token
-                        throw new Error('Token tidak valid');
+                        throw new Error('Token tidak valid, sesi berakhir.');
                     }
                     const userData = await response.json();
-                    setUser(userData); // Simpan data user ke state
+                    setUser(userData);
+                    setToken(storedToken); // Pastikan state token sinkron
                 } catch (error) {
-                    console.error("Gagal mengambil data user:", error);
-                    // Logout paksa jika token bermasalah
+                    console.error(error.message);
+                    // Hapus token yang tidak valid dari penyimpanan
+                    localStorage.removeItem('authToken');
                     setToken(null);
                     setUser(null);
-                    localStorage.removeItem('authToken');
+                } finally {
+                    // --- PERUBAHAN 2: Hentikan loading setelah semua selesai ---
+                    setLoading(false);
                 }
             } else {
-                // Jika tidak ada token, pastikan user juga null
-                setUser(null);
+                // Jika tidak ada token sama sekali, langsung hentikan loading
+                setLoading(false);
             }
         };
 
-        fetchUser();
-    }, [token]); // Jalankan setiap kali token berubah
+        validateTokenAndFetchUser();
+    }, []); // <-- Dijalankan hanya sekali saat komponen pertama kali dimuat
 
     const login = async (username, password) => {
-        // ... (Fungsi login tetap sama)
         try {
             const response = await fetch(`${API_URL}/api/auth/login/`, {
                 method: 'POST',
@@ -54,8 +56,11 @@ export function AuthProvider({ children }) {
             if (!response.ok) {
                 throw new Error(data.non_field_errors?.[0] || 'Login gagal.');
             }
-            // Saat login, set token. useEffect di atas akan otomatis mengambil data user.
+            // Simpan token ke localStorage dan state, lalu fetch user
+            localStorage.setItem('authToken', data.key);
             setToken(data.key);
+            // Setelah login, data user akan otomatis di-fetch oleh useEffect yang lain jika diperlukan
+            // atau kita bisa langsung set user di sini jika API login mengembalikannya
             navigate('/dashboard');
         } catch (error) {
             console.error(error);
@@ -64,7 +69,6 @@ export function AuthProvider({ children }) {
     };
     
     const logout = async () => {
-        // ... (Fungsi logout tetap sama)
         try {
             await fetch(`${API_URL}/api/auth/logout/`, {
                 method: 'POST',
@@ -73,14 +77,15 @@ export function AuthProvider({ children }) {
         } catch (error) {
             console.error("Gagal menghubungi server untuk logout:", error);
         } finally {
+            localStorage.removeItem('authToken');
             setToken(null);
-            setUser(null); // Pastikan data user juga dibersihkan
+            setUser(null);
             navigate('/');
         }
     };
 
-    // --- PERUBAHAN 2: Tambahkan 'user' ke dalam value yang diberikan context ---
-    const value = { token, user, login, logout };
+    // --- PERUBAHAN 3: Tambahkan 'loading' ke dalam value ---
+    const value = { token, user, loading, login, logout };
 
     return (
         <AuthContext.Provider value={value}>
