@@ -79,7 +79,7 @@ function SemuaTransaksiPage() {
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h1 className="text-3xl font-bold text-gray-800">Riwayat Transaksi</h1>
                 <div className="flex items-center gap-2 bg-white p-2 rounded-full shadow-sm border">
-                    <select value={bulan} onChange={(e) => setBulan(e.target.value)} className="bg-transparent font-semibold text-gray-600 border-none focus:ring-0">
+                    <select value={bulan} onChange={(e) => setBulan(e.target.value)} className="bg-transparent text-center font-semibold text-gray-600 border-none focus:ring-0">
                         {Array.from({length: 12}, (_, i) => <option key={i+1} value={i+1}>{new Date(0, i).toLocaleString('id-ID', {month: 'long'})}</option>)}
                     </select>
                     <select value={tahun} onChange={(e) => setTahun(e.target.value)} className="bg-transparent font-semibold text-gray-600 border-none focus:ring-0">

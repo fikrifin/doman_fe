@@ -13,8 +13,7 @@ import DashboardHomePage from './user/cms/pages/DashboardHomePage';
 import RekeningPage from './user/cms/pages/RekeningPage';
 import KategoriPage from './user/cms/pages/KategoriPage';
 import SemuaTransaksiPage from './user/cms/pages/SemuaTransaksiPage';
-
-const TagihanPage = () => <div>Halaman Tagihan</div>;
+import TagihanPage from './user/cms/pages/TagihanPage';
 
 // Komponen baru untuk layar loading global
 function GlobalLoading() {
@@ -70,6 +69,7 @@ function AppRoutes() {
         <Route path="kategori" element={<KategoriPage />} />
         <Route path="tagihan" element={<TagihanPage />} />
         <Route path="semua-transaksi" element={<SemuaTransaksiPage />} />
+        
       </Route>
 
       <Route path="*" element={<div>404 - Halaman Tidak Ditemukan</div>} />
