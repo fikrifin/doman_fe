@@ -9,31 +9,44 @@ function TransaksiFormModal({ isOpen, onClose, onSave, transaksi }) {
     // State untuk form fields
     const [deskripsi, setDeskripsi] = useState('');
     const [jumlah, setJumlah] = useState('');
-    const [jenis, setJenis] = useState('OUT'); // Default: Pengeluaran
-    const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0]); // Default: Hari ini
-    const [kategori, setKategori] = useState('');
+    const [jenis, setJenis] = useState('OUT');
+    const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0]);
+    const [kategoriId, setKategoriId] = useState('');
+    // --- STATE BARU UNTUK REKENING ---
+    const [rekeningId, setRekeningId] = useState('');
 
-    // State untuk menyimpan daftar kategori dari API
+    // State untuk menyimpan daftar dari API
     const [kategoriList, setKategoriList] = useState([]);
+    // --- STATE BARU UNTUK DAFTAR REKENING ---
+    const [rekeningList, setRekeningList] = useState([]);
 
-    // Efek untuk mengambil daftar kategori saat modal pertama kali dibuka
+    // Efek untuk mengambil data dropdown saat modal dibuka
     useEffect(() => {
-        const fetchKategori = async () => {
-            if (token) {
+        const fetchDataForDropdowns = async () => {
+            if (token && isOpen) {
                 try {
-                    const response = await fetch(`${API_URL}/api/doman/kategori/`, {
+                    // Ambil daftar kategori
+                    const kategoriRes = await fetch(`${API_URL}/api/doman/kategori/`, {
                         headers: { 'Authorization': `Token ${token}` },
                     });
-                    const data = await response.json();
-                    setKategoriList(data);
+                    const kategoriData = await kategoriRes.json();
+                    setKategoriList(kategoriData);
+
+                    // Ambil daftar rekening
+                    const rekeningRes = await fetch(`${API_URL}/api/doman/rekening/`, {
+                         headers: { 'Authorization': `Token ${token}` },
+                    });
+                    const rekeningData = await rekeningRes.json();
+                    setRekeningList(rekeningData);
+
                 } catch (error) {
-                    console.error("Gagal memuat kategori:", error);
+                    console.error("Gagal memuat data untuk form:", error);
                 }
             }
         };
-        if (isOpen) {
-            fetchKategori();
-        }
+        
+        fetchDataForDropdowns();
+
     }, [isOpen, token]);
 
     // Efek untuk mengisi form jika sedang dalam mode edit
@@ -43,14 +56,16 @@ function TransaksiFormModal({ isOpen, onClose, onSave, transaksi }) {
             setJumlah(transaksi.jumlah);
             setJenis(transaksi.jenis);
             setTanggal(transaksi.tanggal);
-            setKategori(transaksi.kategori); // `transaksi.kategori` adalah ID
+            setKategoriId(transaksi.kategori); // `transaksi.kategori` adalah ID
+            setRekeningId(transaksi.rekening); // `transaksi.rekening` adalah ID
         } else {
             // Reset form untuk mode tambah baru
             setDeskripsi('');
             setJumlah('');
             setJenis('OUT');
             setTanggal(new Date().toISOString().split('T')[0]);
-            setKategori('');
+            setKategoriId('');
+            setRekeningId('');
         }
     }, [transaksi, isOpen]);
 
@@ -63,7 +78,8 @@ function TransaksiFormModal({ isOpen, onClose, onSave, transaksi }) {
             jumlah,
             jenis,
             tanggal,
-            kategori: kategori || null, // Kirim null jika tidak ada kategori yang dipilih
+            kategori: kategoriId || null,
+            rekening: rekeningId, // Kirim rekeningId yang dipilih
         };
         onSave(dataToSave);
     };
@@ -75,7 +91,6 @@ function TransaksiFormModal({ isOpen, onClose, onSave, transaksi }) {
                     {transaksi ? 'Edit Transaksi' : 'Tambah Transaksi Baru'}
                 </h2>
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Kolom 1 */}
                     <div className="md:col-span-2">
                         <label htmlFor="deskripsi" className="block text-sm font-medium text-gray-700">Deskripsi</label>
                         <input type="text" id="deskripsi" value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} className="mt-1 input-field" required />
@@ -88,71 +103,50 @@ function TransaksiFormModal({ isOpen, onClose, onSave, transaksi }) {
                         <label htmlFor="tanggal" className="block text-sm font-medium text-gray-700">Tanggal</label>
                         <input type="date" id="tanggal" value={tanggal} onChange={(e) => setTanggal(e.target.value)} className="mt-1 input-field" required />
                     </div>
+                    {/* --- SELECT REKENING BARU --- */}
                     <div>
-                        <label htmlFor="jenis" className="block text-sm font-medium text-gray-700">Jenis</label>
-                        <select id="jenis" value={jenis} onChange={(e) => setJenis(e.target.value)} className="mt-1 input-field" required>
-                            <option value="OUT">Pengeluaran</option>
-                            <option value="IN">Pemasukan</option>
+                        <label htmlFor="rekening" className="block text-sm font-medium text-gray-700">Rekening</label>
+                        <select id="rekening" value={rekeningId} onChange={(e) => setRekeningId(e.target.value)} className="mt-1 input-field" required>
+                            <option value="" disabled>-- Pilih Rekening --</option>
+                            {rekeningList.map(rek => (
+                                <option key={rek.id} value={rek.id}>{rek.nama_bank}</option>
+                            ))}
                         </select>
                     </div>
                     <div>
                         <label htmlFor="kategori" className="block text-sm font-medium text-gray-700">Kategori</label>
-                        <select id="kategori" value={kategori} onChange={(e) => setKategori(e.target.value)} className="mt-1 input-field">
+                        <select id="kategori" value={kategoriId} onChange={(e) => setKategoriId(e.target.value)} className="mt-1 input-field">
                             <option value="">-- Tanpa Kategori --</option>
                             {kategoriList.map(kat => (
                                 <option key={kat.id} value={kat.id}>{kat.nama}</option>
                             ))}
                         </select>
                     </div>
+                    <div className="md:col-span-2">
+                        <label htmlFor="jenis" className="block text-sm font-medium text-gray-700">Jenis Transaksi</label>
+                        <select id="jenis" value={jenis} onChange={(e) => setJenis(e.target.value)} className="mt-1 input-field" required>
+                            <option value="OUT">Pengeluaran</option>
+                            <option value="IN">Pemasukan</option>
+                        </select>
+                    </div>
 
-                    {/* Tombol Aksi */}
                     <div className="md:col-span-2 flex justify-end space-x-4 mt-4">
-                        <button type="button" onClick={onClose} className="btn-secondary">
-                            Batal
-                        </button>
-                        <button type="submit" className="btn-primary">
-                            Simpan
-                        </button>
+                        <button type="button" onClick={onClose} className="btn-secondary">Batal</button>
+                        <button type="submit" className="btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>
-            {/* Menambahkan style utility ke dalam file CSS agar tidak berulang */}
+            {/* ... (style jsx global) ... */}
             <style jsx global>{`
-                .input-field {
-                    display: block;
-                    width: 100%;
-                    border: 1px solid #d1d5db;
-                    border-radius: 0.375rem;
-                    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-                    padding: 0.5rem 0.75rem;
-                }
-                .input-field:focus {
-                    outline: none;
-                    --tw-ring-color: #4f46e5;
-                    border-color: #4f46e5;
-                }
-                .btn-primary {
-                    padding: 0.5rem 1rem;
-                    background-color: #4f46e5;
-                    color: white;
-                    border-radius: 0.375rem;
-                }
-                .btn-primary:hover {
-                    background-color: #4338ca;
-                }
-                .btn-secondary {
-                    padding: 0.5rem 1rem;
-                    background-color: #e5e7eb;
-                    color: #1f2937;
-                    border-radius: 0.375rem;
-                }
-                .btn-secondary:hover {
-                    background-color: #d1d5db;
-                }
+                .input-field { display: block; width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); padding: 0.5rem 0.75rem; }
+                .input-field:focus { outline: none; --tw-ring-color: #4f46e5; border-color: #4f46e5; }
+                .btn-primary { padding: 0.5rem 1rem; background-color: #4f46e5; color: white; border-radius: 0.375rem; }
+                .btn-primary:hover { background-color: #4338ca; }
+                .btn-secondary { padding: 0.5rem 1rem; background-color: #e5e7eb; color: #1f2937; border-radius: 0.375rem; }
+                .btn-secondary:hover { background-color: #d1d5db; }
             `}</style>
         </div>
     );
 }
 
 export default TransaksiFormModal;
-
