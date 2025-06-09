@@ -10,10 +10,11 @@ import LoginPage from './user/page/LoginPage';
 import RegisterPage from './user/page/RegisterPage';
 import DashboardLayout from './user/cms/DashboardLayout';
 import DashboardHomePage from './user/cms/pages/DashboardHomePage';
+import RekeningPage from './user/cms/pages/RekeningPage';
 import KategoriPage from './user/cms/pages/KategoriPage';
 import SemuaTransaksiPage from './user/cms/pages/SemuaTransaksiPage';
 
-const TransaksiWajibPage = () => <div>Halaman Transaksi Wajib</div>;
+const TagihanPage = () => <div>Halaman Tagihan</div>;
 
 // Komponen baru untuk layar loading global
 function GlobalLoading() {
@@ -65,8 +66,9 @@ function AppRoutes() {
 
       <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route index element={<DashboardHomePage />} />
+        <Route path="rekening" element={<RekeningPage />} />
         <Route path="kategori" element={<KategoriPage />} />
-        <Route path="transaksi-wajib" element={<TransaksiWajibPage />} />
+        <Route path="tagihan" element={<TagihanPage />} />
         <Route path="semua-transaksi" element={<SemuaTransaksiPage />} />
       </Route>
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../../../auth/AuthContext'; // Sesuaikan path ini
-import { DashboardIcon, WajibIcon, TransaksiIcon, KategoriIcon, LogoutIcon, CollapseIcon, ExpandIcon } from './Icons'; // Sesuaikan path ini
+import { DashboardIcon, WajibIcon, TransaksiIcon, KategoriIcon, LogoutIcon, CollapseIcon, ExpandIcon, RekeningIcon } from './Icons'; // Sesuaikan path ini
 
 function Sidebar({ isCollapsed, toggleSidebar }) {
     const { logout } = useAuth();
@@ -29,9 +29,13 @@ function Sidebar({ isCollapsed, toggleSidebar }) {
                     <DashboardIcon className="h-6 w-6 shrink-0" />
                     <span className={`ml-3 whitespace-nowrap transition-opacity duration-200 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Dashboard</span>
                 </NavLink>
-                <NavLink to="/dashboard/transaksi-wajib" style={({isActive}) => isActive ? activeLinkStyle : {}} className={`flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-indigo-500 hover:text-white ${isCollapsed && 'justify-center'}`}>
+                <NavLink to="/dashboard/rekening" end style={({isActive}) => isActive ? activeLinkStyle : {}} className={`flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-indigo-500 hover:text-white ${isCollapsed && 'justify-center'}`}>
+                    <RekeningIcon className="h-6 w-6 shrink-0" />
+                    <span className={`ml-3 whitespace-nowrap transition-opacity duration-200 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Rekening</span>
+                </NavLink>
+                <NavLink to="/dashboard/tagihan" style={({isActive}) => isActive ? activeLinkStyle : {}} className={`flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-indigo-500 hover:text-white ${isCollapsed && 'justify-center'}`}>
                     <WajibIcon className="h-6 w-6 shrink-0" />
-                    <span className={`ml-3 whitespace-nowrap transition-opacity duration-200 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Transaksi Penting</span>
+                    <span className={`ml-3 whitespace-nowrap transition-opacity duration-200 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>Tagihan</span>
                 </NavLink>
                 <NavLink to="/dashboard/semua-transaksi" style={({isActive}) => isActive ? activeLinkStyle : {}} className={`flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-indigo-500 hover:text-white ${isCollapsed && 'justify-center'}`}>
                     <TransaksiIcon className="h-6 w-6 shrink-0" />

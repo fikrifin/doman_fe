@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../auth/AuthContext';
 import { EditIcon, DeleteIcon, PlusIcon } from '../components/Icons'; // Impor PlusIcon
-import TransaksiFormModal from '../components/TransaksiFormModal';
+import TransaksiFormModal from '../components/modal/TransaksiFormModal';
 
 const API_URL = 'http://127.0.0.1:8000';
 

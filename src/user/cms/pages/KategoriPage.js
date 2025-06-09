@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../auth/AuthContext'; // Sesuaikan path
 import { EditIcon, DeleteIcon } from '../components/Icons'; // Sesuaikan path
-import KategoriFormModal from '../components/KategoriFormModal'; // Sesuaikan path
+import KategoriFormModal from '../components/modal/KategoriFormModal'; // Sesuaikan path
 
 const API_URL = 'http://127.0.0.1:8000';
 
