@@ -71,6 +71,14 @@ function TransaksiFormModal({ isOpen, onClose, onSave, transaksi }) {
 
     if (!isOpen) return null;
 
+    const inputJumlah = (value) => {
+        // Hapus semua karakter non-digit kecuali angka
+        const numericValue = value.replace(/\D/g, '');
+
+        // Simpan nilai asli (tanpa format) ke state
+        setJumlah(numericValue);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const dataToSave = {
@@ -97,7 +105,15 @@ function TransaksiFormModal({ isOpen, onClose, onSave, transaksi }) {
                     </div>
                     <div>
                         <label htmlFor="jumlah" className="block text-sm font-medium text-gray-700">Jumlah (Rp)</label>
-                        <input type="number" id="jumlah" value={jumlah} onChange={(e) => setJumlah(e.target.value)} className="mt-1 input-field" placeholder="50000" required />
+                        <input 
+                            type="text" 
+                            id="jumlah" 
+                            value={new Intl.NumberFormat('id-ID').format(jumlah)} 
+                            onChange={(e) => inputJumlah(e.target.value)} 
+                            className="mt-1 input-field" 
+                            placeholder="50000" 
+                            required 
+                        />
                     </div>
                     <div>
                         <label htmlFor="tanggal" className="block text-sm font-medium text-gray-700">Tanggal</label>

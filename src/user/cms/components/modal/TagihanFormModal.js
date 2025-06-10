@@ -61,6 +61,14 @@ function TagihanFormModal({ isOpen, onClose, onSave, tagihan }) {
 
     if (!isOpen) return null;
 
+    const inputJumlahTagihan = (value) => {
+        // Hapus semua karakter non-digit kecuali angka
+        const numericValue = value.replace(/\D/g, '');
+
+        // Simpan nilai asli (tanpa format) ke state
+        setJumlahTagihan(numericValue);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const dataToSave = {
@@ -87,7 +95,13 @@ function TagihanFormModal({ isOpen, onClose, onSave, tagihan }) {
                     </div>
                     <div>
                         <label htmlFor="jumlah-tagihan">Tagihan Jumlah (Rp)</label>
-                        <input type="number" id="jumlah-tagihan" value={jumlahTagihan} onChange={(e) => setJumlahTagihan(e.target.value)} className="input-field mt-1" required />
+                        <input type="text" 
+                            id="jumlah-tagihan" 
+                            value={new Intl.NumberFormat('id-ID').format(jumlahTagihan)} 
+                            onChange={(e) => inputJumlahTagihan(e.target.value)} 
+                            className="mt-1 input-field" 
+                            placeholder="50000" 
+                            required />
                     </div>
                     <div>
                         <label htmlFor="jatuh-tempo">Tgl Jatuh Tempo (1-31)</label>
