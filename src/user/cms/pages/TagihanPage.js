@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../../auth/AuthContext';
-import { EditIcon, DeleteIcon, PlusIcon, RekeningIcon, KategoriIcon } from '../components/Icons'; // Impor ikon relevan
-import TagihanFormModal from '../components/modal/TagihanFormModal'; // Sesuaikan path jika perlu
+import { EditIcon, DeleteIcon, PlusIcon, RekeningIcon, KategoriIcon } from '../components/Icons';
+import TagihanFormModal from '../components/modal/TagihanFormModal';
 
 const API_URL = 'http://127.0.0.1:8000';
 const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
 
 function TagihanPage() {
     const { token } = useAuth();
-    const [tagihanList, setTagihanList] = useState([]); // Template tagihan
-    const [checklist, setChecklist] = useState([]); // Checklist untuk bulan ini
+    const [tagihanList, setTagihanList] = useState([]);
+    const [checklist, setChecklist] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTagihan, setEditingTagihan] = useState(null);
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            // Menggunakan Promise.all untuk fetch data secara paralel
             const [tagihanRes, checklistRes] = await Promise.all([
                 fetch(`${API_URL}/api/doman/tagihan/`, { headers: { 'Authorization': `Token ${token}` } }),
                 fetch(`${API_URL}/api/doman/checklist/`, { headers: { 'Authorization': `Token ${token}` } })
@@ -31,7 +29,6 @@ function TagihanPage() {
             
             setTagihanList(tagihanData);
             setChecklist(checklistData);
-
         } catch (err) {
             setError(err.message);
         } finally {
@@ -57,7 +54,6 @@ function TagihanPage() {
         const isEditing = !!editingTagihan;
         const url = isEditing ? `${API_URL}/api/doman/tagihan/${editingTagihan.id}/` : `${API_URL}/api/doman/tagihan/`;
         const method = isEditing ? 'PATCH' : 'POST';
-
         try {
             await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` }, body: JSON.stringify(formData) });
             fetchData();
@@ -90,8 +86,23 @@ function TagihanPage() {
             alert(error.message);
         }
     };
+
+    // --- LOGIKA BARU: MENGHITUNG TOTAL TAGIHAN PER REKENING ---
+    const ringkasanPerRekening = useMemo(() => {
+        const belumLunas = checklist.filter(item => !item.status_lunas);
+        const ringkasan = belumLunas.reduce((acc, item) => {
+            const namaRekening = item.rekening_info.split(' - ')[0];
+            if (!acc[namaRekening]) {
+                acc[namaRekening] = 0;
+            }
+            acc[namaRekening] += parseFloat(item.jumlah_tagihan);
+            return acc;
+        }, {});
+        
+        // Ubah dari objek menjadi array agar mudah di-map
+        return Object.entries(ringkasan).map(([nama, total]) => ({ nama, total }));
+    }, [checklist]);
     
-    // Hitung progress checklist
     const lunasCount = checklist.filter(item => item.status_lunas).length;
     const totalCount = checklist.length;
     const progress = totalCount > 0 ? (lunasCount / totalCount) * 100 : 0;
@@ -100,15 +111,25 @@ function TagihanPage() {
         <div className="space-y-8">
             <h1 className="text-3xl font-bold text-gray-800">Tagihan Rutin</h1>
 
-            {/* Layout utama dengan 2 kolom */}
+            <div>
+                {loading ? <p>Menghitung ringkasan...</p> : 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {ringkasanPerRekening.length > 0 ? ringkasanPerRekening.map(item => (
+                            <div key={item.nama} className="bg-white p-4 rounded-lg shadow-sm border">
+                                <p className="text-sm font-semibold text-gray-500">{item.nama}</p>
+                                <p className="text-xl font-bold text-red-600">{formatRupiah(item.total)}</p>
+                            </div>
+                        )) : <p className="col-span-full text-gray-500">Semua tagihan bulan ini sudah lunas!</p>}
+                    </div>
+                }
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Kolom Kiri: Checklist */}
                 <div className="lg:col-span-2">
                     <div className="bg-white p-6 rounded-xl shadow-lg">
                         <h2 className="text-xl font-bold mb-1">Checklist Bulan Ini</h2>
                         <p className="text-sm text-gray-500 mb-4">{new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' })}</p>
                         
-                        {/* Progress Bar */}
                         <div>
                             <div className="flex justify-between mb-1">
                                 <span className="text-sm font-medium text-gray-700">Progress</span>
@@ -119,7 +140,6 @@ function TagihanPage() {
                             </div>
                         </div>
 
-                        {/* Daftar Checklist */}
                         <div className="mt-6 space-y-4">
                             {loading && <p>Memuat checklist...</p>}
                             {!loading && checklist.map(item => (
@@ -142,7 +162,6 @@ function TagihanPage() {
                     </div>
                 </div>
 
-                {/* Kolom Kanan: Template */}
                 <div className="lg:col-span-1">
                     <div className="bg-white p-6 rounded-xl shadow-lg">
                         <div className="flex justify-between items-center mb-4">
@@ -186,7 +205,6 @@ function TagihanPage() {
                 onSave={handleSaveTagihan}
                 tagihan={editingTagihan}
             />
-            {/* Utility class untuk tombol kecil */}
             <style jsx global>{`
                 .btn-primary-sm { padding: 0.5rem; background-color: #4f46e5; color: white; border-radius: 0.375rem; }
                 .btn-primary-sm:hover { background-color: #4338ca; }
@@ -196,3 +214,4 @@ function TagihanPage() {
 }
 
 export default TagihanPage;
+
