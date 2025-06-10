@@ -14,12 +14,10 @@ const ATMCard = ({ rekening, onEdit, onDelete, onCopy, copiedId }) => {
     // Logika untuk memilih gradient berdasarkan nama bank (bisa dikembangkan)
     const getCardGradient = (bankName) => {
         const name = bankName.toLowerCase();
-        if (name.includes('bca')) return 'from-blue-700 to-blue-900';
-        if (name.includes('mandiri')) return 'from-blue-500 to-teal-500';
-        if (name.includes('bni')) return 'from-orange-500 to-yellow-500';
-        if (name.includes('bri')) return 'from-sky-600 to-cyan-400';
-        if (name.includes('gopay')) return 'from-sky-400 to-sky-600';
-        if (name.includes('ovo')) return 'from-purple-600 to-indigo-700';
+        if (name.includes('kaltimtara')) return 'from-orange-500 to-yellow-500';
+        if (name.includes('seabank')) return 'from-sky-600 to-cyan-400';
+        if (name.includes('stockbit')) return 'from-sky-400 to-sky-600';
+        if (name.includes('mandiri')) return 'from-purple-600 to-indigo-700';
         return 'from-gray-700 to-gray-900';
     };
 
