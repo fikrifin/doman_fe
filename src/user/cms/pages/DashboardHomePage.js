@@ -70,7 +70,7 @@ function DashboardHomePage() {
         <div className="space-y-8">
             {/* Bagian Ringkasan Keseluruhan */}
             <div>
-                <h2 className="text-xl font-bold text-gray-700 mb-4">Ringkasan Keseluruhan</h2>
+                <h2 className="text-xl font-bold text-gray-700 mb-4">Ringkasan Keseluruhan Rekening</h2>
                 <div className="flex flex-col md:flex-row gap-6">
                     <SummaryCard title="Total Pemasukan" value={ringkasan_keseluruhan.total_pemasukan} colorClass="text-green-600" />
                     <SummaryCard title="Total Pengeluaran" value={ringkasan_keseluruhan.total_pengeluaran} colorClass="text-red-600" />
@@ -80,7 +80,7 @@ function DashboardHomePage() {
 
             {/* Bagian Ringkasan Bulan Ini */}
             <div>
-                <h2 className="text-xl font-bold text-gray-700 mb-4">Ringkasan Bulan Ini ({new Date().toLocaleString('id-ID', {month: 'long', year: 'numeric'})})</h2>
+                <h2 className="text-xl font-bold text-gray-700 mb-4">Ringkasan Bulan Ini({new Date().toLocaleString('id-ID', {month: 'long', year: 'numeric'})})</h2>
                 <div className="flex flex-col md:flex-row gap-6">
                     <SummaryCard title="Pemasukan Bulan Ini" value={ringkasan_bulan_ini.total_pemasukan} colorClass="text-green-600" />
                     <SummaryCard title="Pengeluaran Bulan Ini" value={ringkasan_bulan_ini.total_pengeluaran} colorClass="text-red-600" />
