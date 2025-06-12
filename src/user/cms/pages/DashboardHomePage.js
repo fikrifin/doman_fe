@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../auth/AuthContext';
 import { Link } from 'react-router-dom';
+import DonutChart from '../components/chart/DonutChart';
 
 const API_URL = 'http://127.0.0.1:8000';
 
@@ -64,7 +65,7 @@ function DashboardHomePage() {
         return <div className="text-center p-10">Tidak ada data untuk ditampilkan.</div>;
     }
 
-    const { ringkasan_bulan_ini, ringkasan_keseluruhan, riwayat_terakhir } = overviewData;
+    const { ringkasan_bulan_ini, ringkasan_keseluruhan, riwayat_terakhir, pengeluaran_chart_data } = overviewData;
 
     return (
         <div className="space-y-8">
@@ -91,34 +92,51 @@ function DashboardHomePage() {
                 </div>
             </div>
 
-            {/* Bagian Riwayat Terakhir */}
-            <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-gray-700">Riwayat Terakhir Bulan Ini</h2>
-                    <Link to="/dashboard/semua-transaksi" className="text-sm font-semibold text-indigo-600 hover:underline">
-                        Lihat Semua
-                    </Link>
+            {/* Layout Baru: Chart Donat & Riwayat Transaksi */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                {/* Kolom Kiri: Chart Donat */}
+                <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+                    <h2 className="text-xl font-bold text-gray-700 mb-4">Analisis Pengeluaran</h2>
+                    <div className="h-80">
+                         {pengeluaran_chart_data && pengeluaran_chart_data.length > 0 ? (
+                            <DonutChart chartData={pengeluaran_chart_data} />
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-gray-500">
+                                Belum ada data pengeluaran bulan ini.
+                            </div>
+                        )}
+                    </div>
                 </div>
-                <div className="bg-white rounded-lg shadow overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {riwayat_terakhir.length === 0 ? (
-                                <tr><td colSpan="3" className="text-center p-6 text-gray-500">Belum ada transaksi bulan ini.</td></tr>
-                            ) : (
-                                riwayat_terakhir.map(trx => (
-                                    <tr key={trx.id}>
-                                        <td className="px-6 py-4">
-                                            <div className="font-medium text-gray-900">{trx.deskripsi}</div>
-                                            <div className="text-sm text-gray-500">{formatDate(trx.tanggal)}</div>
-                                        </td>
-                                        <td className={`px-6 py-4 text-right font-semibold whitespace-nowrap ${trx.jenis === 'IN' ? 'text-green-600' : 'text-red-600'}`}>
-                                            {trx.jenis === 'IN' ? '+' : '-'} {formatRupiah(trx.jumlah)}
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                
+                {/* Kolom Kanan: Riwayat Terakhir */}
+                <div className="lg:col-span-3">
+                     <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold text-gray-700">Riwayat Terakhir</h2>
+                        <Link to="/dashboard/semua-transaksi" className="text-sm font-semibold text-indigo-600 hover:underline">
+                            Lihat Semua
+                        </Link>
+                    </div>
+                    <div className="bg-white rounded-lg shadow overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {riwayat_terakhir.length === 0 ? (
+                                    <tr><td colSpan="2" className="text-center p-6 text-gray-500">Belum ada transaksi bulan ini.</td></tr>
+                                ) : (
+                                    riwayat_terakhir.map(trx => (
+                                        <tr key={trx.id}>
+                                            <td className="px-6 py-4">
+                                                <div className="font-medium text-gray-900">{trx.deskripsi}</div>
+                                                <div className="text-sm text-gray-500">{formatDate(trx.tanggal)}</div>
+                                            </td>
+                                            <td className={`px-6 py-4 text-right font-semibold whitespace-nowrap ${trx.jenis === 'IN' ? 'text-green-600' : 'text-red-600'}`}>
+                                                {trx.jenis === 'IN' ? '+' : '-'} {formatRupiah(trx.jumlah)}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
