@@ -7,43 +7,57 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
     const [token, setToken] = useState(localStorage.getItem('authToken'));
     const [user, setUser] = useState(null);
-    // --- PERUBAHAN 1: State baru untuk loading global ---
     const [loading, setLoading] = useState(true);
+    const [notifications, setNotifications] = useState([]);
     const navigate = useNavigate();
 
-    // Efek ini sekarang akan menangani validasi token saat aplikasi dimuat
+    // Fungsi untuk mengambil notifikasi
+    const fetchNotifications = async (authToken) => {
+        if (!authToken) return;
+        try {
+            const response = await fetch(`${API_URL}/api/doman/checklist/notifikasi-jatuh-tempo/`, {
+                headers: { 'Authorization': `Token ${authToken}` },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setNotifications(data);
+            }
+        } catch (error) {
+            console.error("Gagal memuat notifikasi:", error);
+        }
+    };
+
+    // Validasi token dan ambil data awal
     useEffect(() => {
-        const validateTokenAndFetchUser = async () => {
+        const validateTokenAndFetchData = async () => {
             const storedToken = localStorage.getItem('authToken');
             if (storedToken) {
                 try {
-                    const response = await fetch(`${API_URL}/api/auth/user/`, {
-                        headers: { 'Authorization': `Token ${storedToken}` },
-                    });
-                    if (!response.ok) {
-                        throw new Error('Token tidak valid, sesi berakhir.');
-                    }
-                    const userData = await response.json();
-                    setUser(userData);
-                    setToken(storedToken); // Pastikan state token sinkron
+                    const [userResponse, notifResponse] = await Promise.all([
+                        fetch(`${API_URL}/api/auth/user/`, { headers: { 'Authorization': `Token ${storedToken}` } }),
+                        fetch(`${API_URL}/api/doman/checklist/notifikasi-jatuh-tempo/`, { headers: { 'Authorization': `Token ${storedToken}` } })
+                    ]);
+
+                    if (!userResponse.ok) throw new Error('Token tidak valid');
+                    
+                    setUser(await userResponse.json());
+                    if(notifResponse.ok) setNotifications(await notifResponse.json());
+                    
+                    setToken(storedToken);
                 } catch (error) {
-                    console.error(error.message);
-                    // Hapus token yang tidak valid dari penyimpanan
                     localStorage.removeItem('authToken');
                     setToken(null);
                     setUser(null);
+                    setNotifications([]);
                 } finally {
-                    // --- PERUBAHAN 2: Hentikan loading setelah semua selesai ---
                     setLoading(false);
                 }
             } else {
-                // Jika tidak ada token sama sekali, langsung hentikan loading
                 setLoading(false);
             }
         };
-
-        validateTokenAndFetchUser();
-    }, []); // <-- Dijalankan hanya sekali saat komponen pertama kali dimuat
+        validateTokenAndFetchData();
+    }, []);
 
     const login = async (username, password) => {
         try {
@@ -53,17 +67,12 @@ export function AuthProvider({ children }) {
                 body: JSON.stringify({ username, password }),
             });
             const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.non_field_errors?.[0] || 'Login gagal.');
-            }
-            // Simpan token ke localStorage dan state, lalu fetch user
+            if (!response.ok) throw new Error(data.non_field_errors?.[0] || 'Login gagal.');
+            
             localStorage.setItem('authToken', data.key);
             setToken(data.key);
-            // Setelah login, data user akan otomatis di-fetch oleh useEffect yang lain jika diperlukan
-            // atau kita bisa langsung set user di sini jika API login mengembalikannya
             navigate('/dashboard');
         } catch (error) {
-            console.error(error);
             throw error;
         }
     };
@@ -75,17 +84,17 @@ export function AuthProvider({ children }) {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
             });
         } catch (error) {
-            console.error("Gagal menghubungi server untuk logout:", error);
+            console.error("Gagal logout:", error);
         } finally {
             localStorage.removeItem('authToken');
             setToken(null);
             setUser(null);
+            setNotifications([]);
             navigate('/');
         }
     };
 
-    // --- PERUBAHAN 3: Tambahkan 'loading' ke dalam value ---
-    const value = { token, user, loading, login, logout };
+    const value = { token, user, loading, notifications, fetchNotifications, login, logout };
 
     return (
         <AuthContext.Provider value={value}>
